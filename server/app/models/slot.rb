@@ -10,13 +10,17 @@ class Slot
     @busy = []
   end
 
-  def add_monkey(monkey)
-    @monkeys << monkey
+  def check_availability(monkey, events)
+    if events.empty?
+      @monkeys << monkey.email
+    else
+      events.each do |event|
+        @busy << monkey.email if in_range?(event[:start])
+      end
+    end
   end
 
-  def add_busy_monkey(monkey)
-    @busy << monkey
-  end
+  private
 
   def in_range?(time)
     end_time = @start_time + @duration

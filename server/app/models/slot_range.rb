@@ -4,6 +4,7 @@ class SlotRange
 
   # create a set of Slots for the specified time window and duration
   def initialize(start_time, end_time, duration)
+
     # TODO: validate end_time > start_time?
     # TODO: what about duration < 1 hour?
     slots_starts = group_slots(start_time, end_time, duration)
@@ -15,28 +16,21 @@ class SlotRange
   end
 
   def slot(monkey, events)
-    if events.empty?
-      @slots.each do |slot|
-        slot.add_monkey(monkey.email)
-      end          
-    else
-      events.each do |event|
-        # check if it's in any of the slots
-        @slots.select { |slot| slot.in_range?(event[:start]) }.each do |slot|
-          slot.add_busy_monkey(monkey.email)
-        end
-      end
+
+    @slots.each do |slot|
+      slot.check_availability(monkey, events)
     end
+
   end
 
   private
 
   # based on a start time, an end time and a duration, detect
-  # when a new slot begins, and return the start times of every slot
+  # when a new slot begins, considering 30-minutes steps,
+  # and return the start times of every slot
   def group_slots(start_time, end_time, duration)
-    period = end_time - start_time
-    time = start_time    
-    slots_starts = []
+
+    raise ArgumentError if !(start_time and end_time and duration)
 
     from = start_time.to_i
     to = (end_time - duration).to_i

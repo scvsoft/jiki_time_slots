@@ -16,7 +16,7 @@ class Calendar
       {
         name: item["summary"],
         start: to_time(item.start.date) || item.start.date_time,
-        end: to_time(item.end.date) || item.end.date_time,
+        end: to_time(item.end.date) || item.end.date_time
       }
     end
   end
