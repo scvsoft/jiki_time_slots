@@ -9,22 +9,22 @@ class Calendar
     result = call(api_method: @service.events.list,
       parameters: {
         "calendarId" => "primary",
-        "timeMin" => end_time,
-        "timeMax" => start_time })
+        "timeMin" => start_time.to_datetime.rfc3339,
+        "timeMax" => end_time.to_datetime.rfc3339 })
 
-      result.data.items.map do |item|
-        {
-          name: item["summary"],
-          start: to_time(item.start.date) || item.start.date_time,
-          end: to_time(item.end.date) || item.end.date_time,
-        }
-      end
+    result.data.items.map do |item|
+      {
+        name: item["summary"],
+        start: to_time(item.start.date) || item.start.date_time,
+        end: to_time(item.end.date) || item.end.date_time,
+      }
+    end
   end
 
 private
 
   def call(parameters)
-      @client.execute(parameters)
+    @client.execute(parameters)
   end
 
   def prepare
