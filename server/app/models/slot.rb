@@ -15,7 +15,7 @@ class Slot
       @monkeys << monkey.email
     else
       events.each do |event|
-        if in_range?(event[:start])
+        if overlaps_with?(event)
           @busy << monkey.email
         else
           @monkeys << monkey.email
@@ -26,9 +26,11 @@ class Slot
 
   private
 
-  def in_range?(time)
-    end_time = @start_time + @duration
-    # time.between?(@start_time, end_time)
-    time >= @start_time and time <= end_time
+  def overlaps_with?(event)
+    end_time = (@start_time + @duration).to_i
+    start_time = @start_time.to_i
+
+    (start_time..end_time).overlaps?(event[:start].to_i..event[:end].to_i)
+
   end
 end

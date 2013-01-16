@@ -43,7 +43,7 @@ describe SlotRange do
       end.should raise_error
     end
     
-    it "has a set of 5 1-hour Slots in a 3-hours window" do
+    it "has a set of 5 1-hour slots in a 3-hours window" do
       slot_range.slots.size.should eq 5
     end
   end
@@ -53,22 +53,22 @@ describe SlotRange do
       slot_range.slot(monkeys[0], [])
 
       slot_range.slots.each do |slot|
-        slot.monkeys.include?(monkeys[0].email).should be_true
-        slot.busy.empty?.should be_true
+        slot.monkeys.should include(monkeys[0].email)
+        slot.busy.should be_empty
       end
     end
     
-    it "has a Slot with a busy monkey when ongoing event" do
+    it "has a slot with a busy monkey when ongoing event" do
       slot_range.slot(monkeys[0], [ongoing])
 
-      (0..1).each do |i|
-        slot_range.slots[i].monkeys.empty?.should be_true
-        slot_range.slots[i].busy.include?(monkeys[0].email).should be_true
+      slot_range.slots.first(3).each do |slot|
+        slot.monkeys.should be_empty
+        slot.busy.should include(monkeys[0].email)
       end
 
-      (2..4).each do |i|
-        slot_range.slots[i].monkeys.include?(monkeys[0].email).should be_true
-        slot_range.slots[i].busy.empty?.should be_true
+      slot_range.slots.last(2).each do |slot|
+        slot.monkeys.should include(monkeys[0].email)
+        slot.busy.should be_empty
       end
 
     end
@@ -82,33 +82,31 @@ describe SlotRange do
 
       slot_range.slots.each do |slot|
         slot.monkeys.should == monkeys.map { |m| m.email }
-        slot.busy.empty?.should be_true
+        slot.busy.should be_empty
       end
     end
     
-    it "has a Slot with a busy monkey and available monkey when ongoing event" do
+    it "has a slot with a busy monkey and available monkey when ongoing event" do
 
       slot_range.slot(monkeys[0], [ongoing])
       slot_range.slot(monkeys[1], [])
 
       # for Chimp (always available)
       slot_range.slots.each do |slot|
-        slot.monkeys.include?(monkeys[1].email).should be_true
+        slot.monkeys.should include(monkeys[1].email)
       end
 
       # for Rhesus
-      (0..1).each do |i|
-        slot_range.slots[i].busy.include?(monkeys[0].email).should be_true
-        slot_range.slots[i].monkeys.include?(monkeys[0].email).should be_false
+      slot_range.slots.first(3).each do |slot|
+        slot.busy.should include(monkeys[0].email)
+        slot.monkeys.should_not include(monkeys[0].email)
       end
 
-      (2..4).each do |i|
-        slot_range.slots[i].busy.include?(monkeys[0].email).should be_false
-        slot_range.slots[i].monkeys.include?(monkeys[0].email).should be_true
+      slot_range.slots.last(2).each do |slot|
+        slot.busy.should_not include(monkeys[0].email)
+        slot.monkeys.should include(monkeys[0].email)
       end
 
     end
-
   end
-
 end
