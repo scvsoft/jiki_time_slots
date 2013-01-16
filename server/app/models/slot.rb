@@ -15,7 +15,11 @@ class Slot
       @monkeys << monkey.email
     else
       events.each do |event|
-        @busy << monkey.email if in_range?(event[:start])
+        if in_range?(event[:start])
+          @busy << monkey.email
+        else
+          @monkeys << monkey.email
+        end
       end
     end
   end
@@ -24,6 +28,7 @@ class Slot
 
   def in_range?(time)
     end_time = @start_time + @duration
-    time.between?(@start_time, end_time)
+    # time.between?(@start_time, end_time)
+    time >= @start_time and time <= end_time
   end
 end
