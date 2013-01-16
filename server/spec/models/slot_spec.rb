@@ -27,7 +27,7 @@ describe Slot do
   let(:future) do
     {
       name: "name",
-      start: time = Time.local(2013,1,1,1,30),
+      start: time = Time.local(2013,1,1,1,00),
       end: time + 1.hour
     }
   end
@@ -58,6 +58,13 @@ describe Slot do
   end
 
   it "has an available monkey when an event ends at slot's start time" do
+    slot.check_availability(monkey, [past])
+    
+    slot.monkeys.should include(monkey.email)
+    slot.busy.should be_empty
+  end
+
+  it "has an available monkey when an event starts at slot's end time" do
     slot.check_availability(monkey, [past])
     
     slot.monkeys.should include(monkey.email)

@@ -27,14 +27,13 @@ class Slot
   private
 
   def overlaps_with?(event)
-    end_time = (@start_time + @duration).to_i
-    start_time = @start_time.to_i
+    end_time = @start_time + @duration
+    @start_time
 
-    if event[:end] == @start_time
-      false
-    else 
-      (start_time..end_time).overlaps?(event[:start].to_i..event[:end].to_i)
-    end
+    event[:end] != @start_time &&
+      event[:start] != end_time &&
+      (start_time.to_i..end_time.to_i)
+        .overlaps?(event[:start].to_i..event[:end].to_i)
 
   end
 end
