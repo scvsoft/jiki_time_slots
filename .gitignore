@@ -14,3 +14,6 @@ capybara-*.html
 **.orig
 rerun.txt
 pickle-email-*.html
+server/vendor/
+
+server/config/google_api.yml
