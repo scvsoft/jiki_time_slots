@@ -30,7 +30,11 @@ class Slot
     end_time = (@start_time + @duration).to_i
     start_time = @start_time.to_i
 
-    (start_time..end_time).overlaps?(event[:start].to_i..event[:end].to_i)
+    if event[:end] == @start_time
+      false
+    else 
+      (start_time..end_time).overlaps?(event[:start].to_i..event[:end].to_i)
+    end
 
   end
 end

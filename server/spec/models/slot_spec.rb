@@ -19,7 +19,7 @@ describe Slot do
   let(:past) do
     {
       name: "name",
-      start: time = Time.local(2012,12,31,22,30),
+      start: time = Time.local(2012,12,31,23,00),
       end: time + 1.hour
     }
   end
@@ -52,6 +52,13 @@ describe Slot do
 
   it "has an available monkey when past and future events don't overlap" do
     slot.check_availability(monkey, [past, future])
+    
+    slot.monkeys.should include(monkey.email)
+    slot.busy.should be_empty
+  end
+
+  it "has an available monkey when an event ends at slot's start time" do
+    slot.check_availability(monkey, [past])
     
     slot.monkeys.should include(monkey.email)
     slot.busy.should be_empty

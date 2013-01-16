@@ -19,7 +19,7 @@ describe SlotRange do
     {
       name: "name",
       start: time = Time.local(2013,1,1,0,30),
-      end: Time.local(2013) + 1.hour
+      end: time + 1.hour
     }
   end
 
