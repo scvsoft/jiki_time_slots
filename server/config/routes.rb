@@ -1,7 +1,8 @@
 TimeSlots::Application.routes.draw do
   root to: 'sessions#create'
   match 'auth/:provider/callback', to: 'sessions#create'
-
+  resources :slots
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
