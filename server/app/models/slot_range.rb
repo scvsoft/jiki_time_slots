@@ -5,6 +5,9 @@ class SlotRange
   # create a set of Slots for the specified time window and duration
   def initialize(start_time, end_time, duration)
 
+    @start_time = start_time
+    @end_time = end_time
+
     # TODO: validate end_time > start_time?
     # TODO: what about duration < 1 hour?
     slots_starts = group_slots(start_time, end_time, duration)
@@ -15,8 +18,9 @@ class SlotRange
 
   end
 
-  def slot(monkey, events)
+  def slot(monkey)
 
+    events = monkey.calendar.events(@start_time, @end_time)
     @slots.each do |slot|
       slot.check_availability(monkey, events)
     end
