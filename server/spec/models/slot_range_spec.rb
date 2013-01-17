@@ -43,6 +43,18 @@ describe SlotRange do
       end.should raise_error
     end
 
+    it "is invalid with start_time occuring after end_time" do
+      lambda do
+        SlotRange.new(Time.now, Time.now - 1.hour, 1.hour)
+      end.should raise_error
+    end
+    
+    it "is invalid with a zero or negative duration" do
+      lambda do
+        SlotRange.new(Time.now, Time.now, 0)
+      end.should raise_error
+    end
+
     it "has a set of 5 1-hour slots in a 3-hours window" do
       slot_range.slots.size.should eq 5
     end

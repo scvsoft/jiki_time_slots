@@ -28,7 +28,6 @@ class Slot
 
   def overlaps_with?(event)
     end_time = @start_time + @duration
-    @start_time
 
     event.end != @start_time &&
       event.start != end_time &&
