@@ -9,9 +9,7 @@ class SlotsController < ApplicationController
     slots = SlotRange.new(start_time, end_time, duration)
 
     MonkeyCredential.all.each do |monkey|
-      calendar = Calendar.new(monkey.token)
-      events = calendar.list_events(start_time, end_time)
-      slots.slot(monkey, events)
+      slots.slot(monkey)
     end
 
     context = {
