@@ -8,8 +8,6 @@ class SlotRange
     @start_time = start_time
     @end_time = end_time
 
-    # TODO: validate end_time > start_time?
-    # TODO: what about duration < 1 hour?
     slots_starts = group_slots(start_time, end_time, duration)
 
     @slots = slots_starts.map do |slot_start_time|
@@ -35,6 +33,8 @@ class SlotRange
   def group_slots(start_time, end_time, duration)
 
     raise ArgumentError if !(start_time and end_time and duration)
+    raise ArgumentError, "end_time occurs before than start_time" if start_time > end_time
+    raise ArgumentError, "duration is lower than or equal to zero" if duration <= 0
 
     from = start_time.to_i
     to = (end_time - duration).to_i
