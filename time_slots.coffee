@@ -1,27 +1,46 @@
 #
-# free time - Finds free time slots on the monkeys' calendars.
+# free time from <TIME> to <TIME> - Finds free 1-hour slots on the monkeys' calendars.
+# free <N>-hour slots from <TIME> to <TIME> - Finds free n-hour slots on the monkeys' calendars.
 #
 
 URL = "http://localhost:3000/slots"
+TIME_ZONE = "UTC-3"
 
+reg_ex = /free (time|(\d?\d)-hour slots) from (.*) to (.*)$/i
 module.exports = (robot) ->
-  robot.respond /free time/i, (msg) ->
-    msg.send "Wait a minute, checking calendars..."
+  robot.respond reg_ex, (msg) ->
+    duration = msg.match[2] || 1
+    from = msg.match[3]
+    to = msg.match[4]
 
-    msg.http(URL)
+    msg.send "I'll check the monkeys' calendars from #{from} to #{to} (checking for #{duration} hour slots)."
+    msg.send "Wait a minute, if I'm slow, it's Google's fault..."
+
+    from = "#{from} #{TIME_ZONE}"
+    to = "#{to} #{TIME_ZONE}"
+    query_string = params(start_time: from, end_time: to, duration: duration)
+    msg.http(URL + query_string)
       .headers(Accept: 'application/json')
       .get() (err, res, body) ->
+        if err
+          msg.send "Oops, something went wrong: #{err}"
+          return
+
         data = JSON.parse(body)
-        slots = data.slots.slots
+        slots = data.slots
 
         freeSlots = slots.filter (slot) -> slot.busy.length == 0
         slotsByOccupancy = slots.sort (a, b) -> a.busy.length - b.busy.length
 
         if freeSlots.length == 0
           msg.send "No completely free slots found, showing freest ones"
-          msg.send showSlots(slots_by_occupancy, 3)
+          msg.send showSlots(slotsByOccupancy, 3)
         else
           msg.send showSlots(freeSlots)
+
+params = (obj) ->
+  str = ("#{encodeURIComponent(key)}=#{encodeURIComponent(val)}" for key, val of obj).join("&")
+  "?#{str}"
 
 showSlots = (slots, max) ->
   message = ""
@@ -48,7 +67,7 @@ showSlot = (slot) ->
     message += "#{slot.monkeys.length} available monkeys: #{slot.monkeys.join(', ')}\n"
   else
     message += "No available monkeys\n"
-  message += "\n\n"
+  message += "\n"
 
 toFriendlyDateString = (date) ->
   now = splitDate(new Date)
