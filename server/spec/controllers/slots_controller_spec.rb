@@ -22,18 +22,35 @@ describe SlotsController do
   describe "GET #index" do
     context "with no parameters" do
       it "returns JSON slots with default values" do
-        MonkeyCredential.stub(:all) { monkeys }
+        MonkeyCredential.stub(:all).and_return(monkeys)
+        now = Time.now
+        Time.stub(:now).and_return(now)
         monkeys.each do |ape|
           ape.calendar.stub(:events).and_return(events)
         end       
-        slots = create_slots(
-          quantity: 3, 
-          start_time: Time.now.to_formatted_s(:db), 
-          end_time: (Time.now + 2.hours).to_formatted_s(:db), 
-          duration: 1.hour,
-          busy: [],
-          monkeys: [ [monkeys[0].email, monkeys[1].email] ])
-    
+        start_time = Time.now
+        slots = {
+          start_time: start_time,
+          end_time: (start_time + 2.hours),
+          slots: [ {
+              monkeys: [monkeys[0].email, monkeys[1].email],
+              start_time: start_time,
+              duration: 1.hour,
+              busy: []
+            }, {
+              monkeys: [monkeys[0].email, monkeys[1].email],
+              start_time: (start_time + 30.minutes),
+              duration: 1.hour,
+              busy: []
+            }, {
+              monkeys: [monkeys[0].email, monkeys[1].email],
+              start_time: (start_time + 60.minutes),
+              duration: 1.hour,
+              busy: []
+            }
+          ]
+        }
+
         get :index, format: :json
     
         response.body.should == slots.to_json
@@ -42,66 +59,51 @@ describe SlotsController do
     end
 
     context "with defined valid parameters" do
-      it "returns JSON slots with specified values", :selected=>true do
-        start_time = Time.local(2013).to_formatted_s(:db)
-        end_time = (Time.local(2013) + 3.hours).to_formatted_s(:db)
+      it "returns JSON slots with specified values" do
+        MonkeyCredential.stub(:all).and_return(monkeys)
+        start_time = Time.local(2013)
+        end_time = (Time.local(2013) + 3.hours)
         duration = "1"
-        MonkeyCredential.stub(:all) { monkeys }
         monkeys.each do |ape|
           ape.calendar.stub(:events).and_return(events)
         end       
-        slots = create_slots(
-          quantity: 5, 
-          start_time: start_time, 
-          end_time: end_time,
-          duration: 1.hour,
-          busy: [
-            [monkeys[0].email, monkeys[1].email], 
-            [monkeys[0].email, monkeys[1].email],
-            [monkeys[0].email, monkeys[1].email],
-            [],
-            []],
-          monkeys: [
-            [],
-            [],
-            [],
-            [monkeys[0].email, monkeys[1].email],
-            [monkeys[0].email, monkeys[1].email]
-          ])
+        slots = {
+          start_time: start_time,
+          end_time: (start_time + 3.hours),
+          slots: [ {
+              monkeys: [],
+              start_time: start_time,
+              duration: 1.hour,
+              busy: [monkeys[0].email, monkeys[1].email]
+            }, {
+              monkeys: [],
+              start_time: (start_time + 30.minutes),
+              duration: 1.hour,
+              busy: [monkeys[0].email, monkeys[1].email]
+            }, {
+              monkeys: [],
+              start_time: (start_time + 60.minutes),
+              duration: 1.hour,
+              busy: [monkeys[0].email, monkeys[1].email]
+            }, {
+              monkeys: [monkeys[0].email, monkeys[1].email],
+              start_time: (start_time + 90.minutes),
+              duration: 1.hour,
+              busy: []
+            }, {
+              monkeys: [monkeys[0].email, monkeys[1].email],
+              start_time: (start_time + 120.minutes),
+              duration: 1.hour,
+              busy: []
+            }
+          ]
+        }
 
-        get :index, format: :json, start_time: start_time, end_time: end_time, duration: duration
+        get :index, format: :json, start_time: start_time.to_s, end_time: end_time.to_s, duration: duration
 
         response.body.should == slots.to_json
       end
     end
-
-  end
-
-  private
-
-  def create_slots(definition)
-    slots = []
-
-    (0..(definition[:quantity] - 1)).each do |x|
-      busy = definition[:busy][x] || definition[:busy][0] || []
-      monkeys = definition[:monkeys][x] || definition[:monkeys][0] || []
-      
-      start_time = Time.parse(definition[:start_time]) + x * 30.minutes
-      slot = {
-        monkeys: monkeys,
-        start_time: start_time,
-        duration: definition[:duration],
-        busy: busy
-      }
-
-      slots << slot
-    end
-
-    { 
-      start_time: Time.parse(definition[:start_time]),
-      end_time: Time.parse(definition[:end_time]),
-      slots: slots 
-    }
 
   end
 
