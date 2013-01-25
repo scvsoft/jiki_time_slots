@@ -26,6 +26,9 @@ module.exports = (robot) ->
           msg.send "Oops, something went wrong: #{err}"
           return
 
+        if res.statusCode == 500
+          msg.send "Internal server error! (Are you being good with me?)"
+          return
         data = JSON.parse(body)
         slots = data.slots
 
