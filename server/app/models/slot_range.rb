@@ -39,7 +39,9 @@ class SlotRange
     from = start_time.to_i
     to = (end_time - duration).to_i
 
-    (from..to).step(30.minutes).map { |timestamp| Time.at(timestamp) }
+    (from..to).step(30.minutes).map do |timestamp|
+      start_time + (timestamp - start_time.to_i).seconds
+    end
   end
 
 end
