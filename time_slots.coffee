@@ -1,7 +1,21 @@
+# Description:
+#   Find free time slots among google calendars
 #
-# free time from <TIME> to <TIME> - Finds free 1-hour slots on the monkeys' calendars.
-# free <N>-hour slots from <TIME> to <TIME> - Finds free n-hour slots on the monkeys' calendars.
+# Dependencies:
+#   "moment": "1.7.2"
 #
+# Configuration:
+#   None
+#
+# Commands:
+#   hubot free time from <TIME> to <TIME> - Finds free 1-hour slots on the monkeys' calendars.
+#   hubot free <N>-hour slots from <TIME> to <TIME> - Finds free n-hour slots on the monkeys' calendars.
+#
+# Author:
+#   leoasis
+#
+
+moment = require 'moment'
 
 URL = "http://localhost:3000/slots"
 TIME_ZONE = "UTC-3"
@@ -55,11 +69,8 @@ showSlots = (slots, max) ->
 
 showSlot = (slot) ->
   message = ""
-  from = new Date(slot["start_time"])
-  to = new Date(slot["start_time"])
-  to.setSeconds(to.getSeconds() + slot["duration"])
-  from = toFriendlyDateString(from)
-  to = toFriendlyDateString(to)
+  from = toFriendlyDateString(moment(slot["start_time"]))
+  to = toFriendlyDateString(moment(slot["start_time"]).add('seconds' ,slot["duration"]))
 
   message += "From #{from} to #{to}\n"
   if slot.busy.length > 0
@@ -73,25 +84,12 @@ showSlot = (slot) ->
   message += "\n"
 
 toFriendlyDateString = (date) ->
-  now = splitDate(new Date)
-  date = splitDate(date)
+  now = moment()
 
-  hourString = "at #{pad2(date.hour)}:#{pad2(date.minutes)}"
-  if now.day == date.day and now.month == date.month and now.year == date.year
+  hourString = "at #{date.format('HH:mm')}"
+  if now.format("YYYY-MM-DD") == date.format("YYYY-MM-DD")
     "today #{hourString}"
-  else if now.year == date.year
-    "#{pad2(date.month)}/#{pad2(date.day)} #{hourString}"
+  else if now.year() == date.year()
+    "#{date.format('MM/DD')} #{hourString}"
   else
-    "#{pad2(date.month)}/#{pad2(date.day)}/#{date.year} at #{hourString}"
-
-splitDate = (date) ->
-  {
-    seconds: date.getSeconds(),
-    minutes: date.getMinutes(),
-    hour: date.getHours(),
-    day: date.getDate()
-    month: date.getMonth() + 1,
-    year: date.getFullYear()
-  }
-
-pad2 = (num) -> ("0" + num).slice(-2)
+    "#{date.format('MM/DD/YYYY')} #{hourString}"
