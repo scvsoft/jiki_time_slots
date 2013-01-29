@@ -18,7 +18,8 @@
 moment = require 'moment'
 
 URL = "http://localhost:3000/slots"
-TIME_ZONE = "UTC-3"
+TIME_ZONE_HOURS = -3
+TIME_ZONE = "UTC#{TIME_ZONE_HOURS}"
 
 reg_ex = /free (time|(\d?\d)-hour slots) from (.*) to (.*)$/i
 module.exports = (robot) ->
@@ -86,10 +87,12 @@ showSlot = (slot) ->
 toFriendlyDateString = (date) ->
   now = moment()
 
-  hourString = "at #{date.format('HH:mm')}"
+  # move date to utc minus time zone hours to get the correct representation
+  timeZoneDate = date.clone().utc().add('hours', TIME_ZONE_HOURS)
+  hourString = "at #{timeZoneDate.format('HH:mm')}"
   if now.format("YYYY-MM-DD") == date.format("YYYY-MM-DD")
     "today #{hourString}"
   else if now.year() == date.year()
-    "#{date.format('MM/DD')} #{hourString}"
+    "#{timeZoneDate.format('MM/DD')} #{hourString}"
   else
-    "#{date.format('MM/DD/YYYY')} #{hourString}"
+    "#{timeZoneDate.format('MM/DD/YYYY')} #{hourString}"
