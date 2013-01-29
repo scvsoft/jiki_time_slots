@@ -68,4 +68,11 @@ describe Slot do
     slot.busy.should be_empty
   end
 
+  it "has a busy monkey when it has 2 events, one past and one ongoing" do
+    slot.check_availability(monkey, [past, ongoing])
+
+    slot.monkeys.should_not include(monkey.email)
+    slot.busy.should include(monkey.email)
+  end
+
 end

@@ -14,12 +14,15 @@ class Slot
     if events.empty?
       @monkeys << monkey.email
     else
+      busy = false
       events.each do |event|
-        if overlaps_with?(event)
-          @busy << monkey.email
-        else
-          @monkeys << monkey.email
-        end
+        busy = true if overlaps_with?(event)
+      end
+
+      if busy
+        @busy << monkey.email
+      else
+        @monkeys << monkey.email
       end
     end
   end
