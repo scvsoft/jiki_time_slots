@@ -23,12 +23,12 @@ describe SlotsController do
     context "with no parameters" do
       it "returns JSON slots with default values" do
         MonkeyCredential.stub(:all).and_return(monkeys)
-        now = Time.now
-        Time.stub(:now).and_return(now)
+        now = DateTime.now
+        DateTime.stub(:now).and_return(now)
         monkeys.each do |ape|
           ape.calendar.stub(:events).and_return(events)
-        end       
-        start_time = Time.now
+        end
+        start_time = DateTime.now.change(min: 0)
         slots = {
           start_time: start_time,
           end_time: (start_time + 2.hours),
@@ -52,7 +52,7 @@ describe SlotsController do
         }
 
         get :index, format: :json
-    
+
         response.body.should == slots.to_json
 
       end
@@ -66,7 +66,7 @@ describe SlotsController do
         duration = "1"
         monkeys.each do |ape|
           ape.calendar.stub(:events).and_return(events)
-        end       
+        end
         slots = {
           start_time: start_time,
           end_time: (start_time + 3.hours),

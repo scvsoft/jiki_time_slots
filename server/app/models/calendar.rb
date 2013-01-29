@@ -16,8 +16,10 @@ class Calendar
 
     result.data.items.map do |item|
       Event.new(item.summary,
-        to_time(item.start.date) || item.start.date_time,
-        to_time(item.end.date) || item.end.date_time)
+        # Use to_hash["dateTime"] to preserve the time zone and parse it
+        # with DateTime instead of Time (which the api client does)
+        to_time(item.start.date) || to_time(item.start.to_hash["dateTime"]),
+        to_time(item.end.date) || to_time(item.end.to_hash["dateTime"]))
     end
   end
 
@@ -45,6 +47,6 @@ private
   end
 
   def to_time(date_or_nil)
-    Time.parse(date_or_nil) if date_or_nil
+    DateTime.parse(date_or_nil) if date_or_nil
   end
 end
